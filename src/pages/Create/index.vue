@@ -60,7 +60,7 @@
                   <label for="exercise_video">Video Source</label>
                 </div>
                 <div class="item flex-basis-375">
-                  <input class="input" id="exercise_video" type="file" @change="videoChanged($event.target.files)">
+                  <input class="input" id="exercise_video" type="file" @change="videoChanged($event.target.files[0])">
                 </div>
               </div>
               <form v-on:submit.prevent="addCategory(category)">
@@ -148,6 +148,9 @@ export default {
   name: "Create",
   data () {
     return {
+      exercise: {
+        questions: []
+      },
       copyExercise: {},
       question: {
         answers: [
@@ -216,35 +219,36 @@ export default {
         categories: []
       }
     },
-    videoChanged (files) {
-      if (files[0]) {
+    videoChanged (file) {
+      if (file) {
         var reader = new FileReader();
         reader.onload = (e) => {
-          this.exercise.video = e.target.result
+          this.question.video_old = file
+          this.question.video_original = file.name
+          this.question.video = e.target.result
         };
-        reader.readAsDataURL(files[0])
-        this.video = files[0]
-        console.log(this.video);
+        reader.readAsDataURL(file)
       } else {
         this.video = null
       }
-    }
-  },
-  computed: {
-    exercise () {
-      return { ...this.$store.getters['getExercise'] }
     }
   },
   components: {
     DragNDrop
   },
   watch: {
-    exercise: function (exercise) {
-      this.copyExercise = {...exercise}
+    question: function (question) {
+      const copy = {...question}
+      copy.answered = false
+      copy.answers = copy.answers.map(x => {
+        x.selected = false
+        return x
+      })
+      this.copyExercise = { questions: [copy] }
     }
   },
   mounted () {
-    this.copyExercise = {...this.exercise}
+    this.copyExercise = this.exercise
   }
 }
 </script>

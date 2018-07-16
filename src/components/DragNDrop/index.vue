@@ -1,19 +1,20 @@
 <template>
   <div class="container">
     <div class="item item-border flex-basis-600">
-      <VideoPlayer :exercise="exercise"/>
+      <VideoPlayer :question="question"/>
     </div>
     <div class="item item-border flex-basis-600">
       <div class="container column">
         <div class="item flex-basis-200">
           <div class="container row justify-content-around">
             <div class="item answer"
-                 v-for="aswr in current.answers"
+                 v-for="aswr in question.answers"
                  :draggable="!aswr.selected"
                  @dragstart="setToDrop(aswr)"
                  :class="{
                    right: (aswr.selected && aswr.correct),
                    wrong: (aswr.selected && !aswr.correct),
+                   selected: aswr.selected
                  }">
               {{ aswr.text }}
             </div>
@@ -22,7 +23,7 @@
         <div class="item flex-grow-1">
           <div class="container row justify-content-around">
             <div class="item category"
-                 v-for="cat in current.categories"
+                 v-for="cat in question.categories"
                  @dragover="$event.preventDefault()"
                  @drop="droped(cat)">
               <b>{{ cat.type }}</b>
@@ -31,7 +32,7 @@
           </div>
         </div>
         <div class="item align-self-end">
-          <button class="btn btn-round" @click.prevent="setCurrent(exercise.questions)" v-if="!ended" :disabled="!current.answered">Next</button>
+          <button class="btn btn-round" @click.prevent="setCurrent(exercise.questions)" v-if="!ended" :disabled="!question.answered">Next</button>
           <button class="btn btn-round" @click.prevent="finish()" v-else>Finish!</button>
         </div>
       </div>
@@ -45,7 +46,7 @@ export default {
   name: "dragndrop",
   data () {
     return {
-      current: {
+      question: {
         answers: [],
         categories: []
       },
@@ -59,16 +60,18 @@ export default {
     setCurrent (questions) {
       for (const index in questions) {
         if (!questions[index].answered) {
-          this.current = questions[index]
+          this.question = questions[index]
           this.dropped = 0
           break
         } else {
           if (parseInt(index) === (questions.length - 1)) {
-            this.current = questions[index]
+            this.question = questions[index]
             this.ended = true
+            break
           }
         }
       }
+      this.video = this.question.video
     },
     setToDrop (answer) {
       this.toDrag = answer
@@ -80,10 +83,10 @@ export default {
       else this.toDrag.correct = false
       category.answers.push(this.toDrag.text)
       this.toDrag = null
-      if (this.dropped == parseInt(this.current.answers.length)) {
-        this.current.answered = true
+      if (this.dropped == parseInt(this.question.answers.length)) {
+        this.question.answered = true
       }
-      console.log(this.dropped, this.current.answers.length);
+      console.log(this.dropped, this.question.answers.length);
     },
     finish () {
       alert('Finished!')
@@ -100,6 +103,9 @@ export default {
       this.setCurrent(questions)
       this.ended = false
     },
+    'exercise': function (exercise) {
+      console.log(exercise)
+    }
   },
   mounted () {
     this.setCurrent(this.exercise.questions)
@@ -146,5 +152,10 @@ export default {
 
 .wrong {
   background-color: red;
+}
+
+.selected {
+  font-weight: bold;
+  cursor: not-allowed !important;
 }
 </style>

@@ -1,8 +1,8 @@
 <template>
   <div id="player" class="view-player">
     <PlyrVideo poster=""
-               :videos="[ { src: exercise.video, format: 'mp4' }]"
                ref="video"
+               :videos="[ { src: question.video, format: 'mp4' }]"
                :emit="['timeupdate', 'playing', 'pause']"
                @timeupdate="timeUpdated"
                @playing="play"
@@ -98,39 +98,41 @@ export default {
       this.isPlaying = false
       console.log(this.isPlaying);
     },
-    getVideo (exercise) {
-      setTimeout(() => {
-        const source = exercise.video
-        if (source && source.indexOf('upload_') >= 0) {
-          const splitted = source.split('/')
-          const name = splitted.pop()
-          this.$store.dispatch('file/get', { name: name, type: 'video' })
-            .then(() => {
-              const audio = this.$store.getters['file/getFile']
-              const objectURL = window.URL.createObjectURL(audio)
-              this.$refs['video'].$refs['video'].src = objectURL
-              this.$refs['video'].$refs['video'].load()
-            })
-        } else {
-          this.$refs['video'].$refs['video'].src = source
-          this.$refs['video'].$refs['video'].load()
-        }
-      }, 0)
-    }
+    // getVideo (exercise) {
+    //   setTimeout(() => {
+    //     const source = exercise.video
+    //     if (source && source.indexOf('upload_') >= 0) {
+    //       const splitted = source.split('/')
+    //       const name = splitted.pop()
+    //       this.$store.dispatch('file/get', { name: name, type: 'video' })
+    //         .then(() => {
+    //           const audio = this.$store.getters['file/getFile']
+    //           const objectURL = window.URL.createObjectURL(audio)
+    //           this.$refs['video'].$refs['video'].src = objectURL
+    //           this.$refs['video'].$refs['video'].load()
+    //         })
+    //     } else {
+    //       this.$refs['video'].$refs['video'].src = source
+    //       this.$refs['video'].$refs['video'].load()
+    //     }
+    //   }, 0)
+    // }
   },
   props: [
-    `exercise`
+    `question`
   ],
   components: {
     PlyrVideo
   },
   watch: {
-    'exercise.video': function () {
-      this.getVideo(this.exercise)
+    'question.video': function (video) {
+      // this.getVideo(this.exercise)
+      console.log(video)
+      this.$refs['video'].$refs['video'].load()
     }
   },
   mounted() {
-    this.getVideo(this.exercise)
+    // this.getVideo(this.exercise)
   }
 }
 </script>
